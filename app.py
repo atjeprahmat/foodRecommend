@@ -423,10 +423,15 @@ def render_weight_inputs() -> pd.Series:
 
 def render_top_cards(ranked: pd.DataFrame) -> None:
     st.subheader("10 Rekomendasi Makanan Terbaik")
-    top_items = ranked.head(10)
-    for row_group in np.array_split(top_items, 2):
-        columns = st.columns(len(row_group) if len(row_group) else 1)
-        for column, (_, row) in zip(columns, row_group.iterrows()):
+    top_items = ranked.head(10).to_dict("records")
+    if not top_items:
+        st.warning("Belum ada rekomendasi yang bisa ditampilkan.")
+        return
+
+    for start in range(0, len(top_items), 5):
+        row_group = top_items[start : start + 5]
+        columns = st.columns(len(row_group))
+        for column, row in zip(columns, row_group):
             with column:
                 st.markdown(
                     f"""
